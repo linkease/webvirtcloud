@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from computes.models import Compute
 from vrtManager.connection import CONN_SOCKET
+from appsettings.models import AppSettings
 
 
 class Command(BaseCommand):
@@ -12,3 +13,8 @@ class Command(BaseCommand):
             self.stdout.write('create new')
         else:
             self.stdout.write('created: ' + obj.name)
+
+        obj = AppSettings.objects.get(pk=35)
+        if obj and obj.value == 'default':
+            obj.value = 'virtio'
+            obj.save()
