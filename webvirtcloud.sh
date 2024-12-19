@@ -197,6 +197,7 @@ create_user () {
   fi
 
   usermod -a -G "$nginx_group" "$APP_USER"
+  usermod -a -G libvirt "$nginx_group"
 }
 
 run_as_app_user () {
@@ -371,7 +372,7 @@ case $distro in
     supervisor_conf_path=/etc/supervisor/conf.d
     supervisor_file_name=webvirtcloud.conf
     ;;
-  *centos*|*redhat*|*ol*|*rhel*|*rocky*|*alma*)
+  *centos*|*redhat*|*ol*|*rhel*|*rocky*|*Rocky*|*alma*)
     echo "  The installer has detected $distro version $version."
     distro=centos
     nginx_group=nginx
@@ -468,7 +469,9 @@ fi
 echo "     Setting novnc host ip $novncd_host"
 echo ""
 
-
+echo "========="
+echo "distro: ${distro}"
+echo "========="
 case $distro in
   debian)
   if [[ "$version" -ge 9 ]]; then
@@ -480,9 +483,10 @@ case $distro in
     progress
 
     echo "*  Installing OS requirements."
-    PACKAGES="git virtualenv python3-virtualenv python3-dev python3-lxml libvirt-dev zlib1g-dev libxslt1-dev libsasl2-dev libldap2-dev nginx supervisor libsasl2-modules gcc pkg-config python3-guestfs uuid"
+    PACKAGES="git virtualenv python3-virtualenv python3-dev python3-lxml libvirt-dev zlib1g-dev libxslt1-dev libsasl2-dev libldap2-dev nginx smbios-utils libsasl2-modules gcc pkg-config python3-guestfs uuid"
+    
     install_packages
-
+    
     set_hosts
 
     install_webvirtcloud
@@ -491,6 +495,7 @@ case $distro in
     configure_nginx
 
     echo "* Configuring Supervisor."
+    log "pip install supervisor "
     configure_supervisor
 
     restart_supervisor
@@ -507,7 +512,7 @@ case $distro in
     progress
 
     echo "*  Installing OS requirements."
-    PACKAGES="git virtualenv python3-virtualenv python3-pip python3-dev python3-lxml libvirt-dev zlib1g-dev libxslt1-dev nginx supervisor libsasl2-modules gcc pkg-config python3-guestfs"
+    PACKAGES="git virtualenv python3-virtualenv python3-pip python3-dev python3-lxml libvirt-dev zlib1g-dev libxslt1-dev nginx libsasl2-modules gcc pkg-config python3-guestfs"
     install_packages
 
     set_hosts
@@ -518,6 +523,7 @@ case $distro in
     configure_nginx
 
     echo "* Configuring Supervisor."
+    log "pip install supervisor "
     configure_supervisor
 
     restart_supervisor
@@ -526,7 +532,7 @@ case $distro in
   fi  
   ;;
   centos)
-  if [[ "$version" =~ ^8 ]]; then
+  if [[ "$version" =~ ^8 ]] || [[ "$version" =~ ^9  ]]; then
     # Install for CentOS/Redhat 8
     tzone=\'$(timedatectl|grep "Time zone"| awk '{print $3}')\'
 
@@ -534,7 +540,7 @@ case $distro in
     log "yum -y install wget epel-release"
 
     echo "* Installing OS requirements."
-    PACKAGES="git python3-virtualenv python3-devel libvirt-devel glibc gcc nginx supervisor python3-lxml python3-libguestfs iproute-tc cyrus-sasl-md5"
+    PACKAGES="git python3-virtualenv python3-devel libvirt-devel glibc gcc nginx python3-lxml python3-libguestfs iproute-tc cyrus-sasl-md5 openldap-devel"
     install_packages
 
     set_hosts
@@ -545,6 +551,7 @@ case $distro in
     configure_nginx
 
     echo "* Configuring Supervisor."
+    log "pip install supervisor "
     configure_supervisor
     
     set_firewall 
@@ -567,9 +574,9 @@ case $distro in
 
     echo "* Installing OS requirements."
     if test "${codename}" == "eagle"; then
-      PACKAGES="git virtualenv python3-virtualenv python3-dev python3-lxml libvirt-dev zlib1g-dev libxslt1-dev nginx supervisor libsasl2-modules gcc pkg-config python3-guestfs uuid"
+      PACKAGES="git virtualenv python3-virtualenv python3-dev python3-lxml libvirt-dev zlib1g-dev libxslt1-dev nginx libsasl2-modules gcc pkg-config python3-guestfs uuid"
     else
-      PACKAGES="git python3-virtualenv python3-devel python3-pip libvirt-devel glibc gcc nginx supervisor python3-lxml python3-libguestfs iproute-tc cyrus-sasl-md5"
+      PACKAGES="git python3-virtualenv python3-devel python3-pip libvirt-devel glibc gcc nginx python3-lxml python3-libguestfs iproute-tc cyrus-sasl-md5"
     fi
     install_packages
 
@@ -581,6 +588,7 @@ case $distro in
     configure_nginx
 
     echo "* Configuring Supervisor."
+    log "pip install supervisor "
     configure_supervisor
 
     set_firewall
@@ -597,7 +605,7 @@ case $distro in
     tzone=\'$(timedatectl|grep "Time zone"| awk '{print $3}')\'
 
     echo "* Installing OS requirements."
-    PACKAGES="git python3-virtualenv python3-devel python3-pip libvirt-devel glibc gcc nginx supervisor python3-lxml python3-libguestfs iproute-tc cyrus-sasl-md5"
+    PACKAGES="git python3-virtualenv python3-devel python3-pip libvirt-devel glibc gcc nginx python3-lxml python3-libguestfs iproute-tc cyrus-sasl-md5"
     install_packages
 
     set_hosts
@@ -608,6 +616,7 @@ case $distro in
     configure_nginx
 
     echo "* Configuring Supervisor."
+    log "pip install supervisor "
     configure_supervisor
 
     set_firewall
