@@ -66,6 +66,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "appsettings.middleware.AppSettingsMiddleware",
     "webvirtcloud.middleware.ExceptionMiddleware",
+    "accounts.middleware.DisableCsrfCheck",
 ]
 
 ROOT_URLCONF = "webvirtcloud.urls"
@@ -302,3 +303,9 @@ AUTH_LDAP_USER_ATTR_MAP = {
     "last_name": "sn",
     "email": "mail",
 }
+
+try:
+  from dbconfig.local_settings import *
+except:
+  pass
+
