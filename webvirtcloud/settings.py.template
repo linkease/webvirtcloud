@@ -12,7 +12,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = ""
+SECRET_KEY = "e^0h0e79&bzu)-r#&#m)l153kv^#-5g36tnx#%68ry)5x2nyd="
 
 DEBUG = False
 
